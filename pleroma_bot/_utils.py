@@ -467,6 +467,8 @@ def _get_instance_info(self):
                     response.raise_for_status()  # pragma
                 nodeinfo_json = response.json()
                 self.instance = nodeinfo_json["software"]["name"]
+                if self.instance == "akkoma":
+                    self.instance = "pleroma"
         if self.instance == "misskey":
             logger.info(_("Instance appears to be Misskey ฅ^•ﻌ•^ฅ"))
             if "metadata" in nodeinfo_json:
@@ -616,7 +618,9 @@ def post(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
                 l_item for l_item in media if l_item[media_id] == key
             ] for key in set([i[media_id] for i in media])
         }
+    logger.info("Trying to post... %s", instance)
     if instance == "mastodon" or instance == "pleroma" or instance is None:
+        logger.info("Trying to post pleroma...")
         post_id = self.post_pleroma(tweet, poll, sensitive, media)
     elif self.instance == "misskey":
         post_id = self.post_misskey(tweet, poll, sensitive, media)
